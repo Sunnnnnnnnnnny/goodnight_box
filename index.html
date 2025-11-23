@@ -118,10 +118,10 @@
     </section>
   </main>
 
-  <!-- 星点层 -->
+ 
   <div class="stars"></div>
 
-  <!-- 小花 -->
+ 
   <div class="flower-wrap">
     <div class="flower"></div>
     <div class="flower"></div>
@@ -137,7 +137,7 @@
   const MAX_PER_CYCLE = 3;
   const TZ = 'Asia/Taipei';
 
-  // 小工具
+
   function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
   function nowInTZ(){const fmt=new Intl.DateTimeFormat('zh-CN',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hour12:false});
     const p=fmt.formatToParts(new Date()).reduce((o,q)=>{o[q.type]=q.value;return o},{});return {year:+p.year,month:+p.month,day:+p.day,hour:+p.hour};}
@@ -145,7 +145,7 @@
   function prevCycleKey(key){const [y,m,d]=key.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()-1);return fmtDate(dt);} 
   const store={load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}},save(s){localStorage.setItem(STORAGE_KEY,JSON.stringify(s))}};
 
-  // 备用卡组（远程失败时使用）
+  // 备用卡组
   const defaultDeck=[
     {title:'测试卡·晚安1', text:'这是备用示例卡。若你看到它，说明未成功加载。'},
     {title:'测试卡·抱抱', text:'给你一个远程加载失败时的抱抱～'},
