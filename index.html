@@ -1,1 +1,322 @@
-ok
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Goodnight Box (❤️)</title>
+  <style>
+    :root{
+      --gap:14px;--r:18px;
+      --bg:#0a0f1a;
+      --card:#101626;
+      --ink:#e8eefc;
+      --muted:#9bb0d1;
+      --line:#20304a;
+      --blue1:#6ea8ff;
+      --blue2:#517dff;
+      --sky:#a7c6ff33;
+      --shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+      margin:0;color:var(--ink);
+      background: radial-gradient(1200px 800px at 80% -10%, #1c336a 0%, transparent 60%),
+                  radial-gradient(900px 600px at -10% 10%, #0f2b55 0%, transparent 55%),
+                  var(--bg);
+      min-height:100vh; position:relative; overflow-x:hidden;
+    }
+    header{padding:24px 18px;border-bottom:1px solid var(--line);background:rgba(7,12,22,.7);backdrop-filter:blur(6px);position:sticky;top:0;z-index:9}
+    h1{margin:0;font-size:22px;letter-spacing:.2px}
+    .sub{opacity:.8;font-size:12px;margin-top:6px;color:var(--muted)}
+    main{max-width:900px;margin:0 auto;padding:22px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+    .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)), var(--card);
+          border:1px solid var(--line); border-radius:22px; padding:16px; box-shadow:var(--shadow)}
+    .title{font-weight:700}
+    .muted{color:var(--muted)}
+    .flex{display:flex;align-items:center;gap:10px}
+    .between{justify-content:space-between}
+
+    .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap);margin-top:var(--gap)}
+    .kpi .card{padding:14px;text-align:center}
+    .kpi .big{font-size:28px;font-weight:800;text-shadow:0 0 18px var(--sky)}
+
+    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#0e1527;border:1px solid var(--line);box-shadow:var(--shadow);padding:10px 14px;border-radius:12px;opacity:0;transition:.25s ease;pointer-events:none}
+    .toast.show{opacity:1}
+
+    button{position:relative; border-radius:14px; padding:12px 14px; cursor:pointer; font-weight:700; color:#fff;
+           background:linear-gradient(180deg,var(--blue1),var(--blue2)); border:0; box-shadow:0 6px 18px rgba(81,125,255,.35)}
+    button:before{content:'';position:absolute;inset:-2px;border-radius:16px;background:linear-gradient(90deg,transparent,rgba(167,198,255,.3),transparent);filter:blur(8px);opacity:.0;transition:.2s}
+    button:hover:before{opacity:1}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .ghost{background:transparent;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+    .outline{background:linear-gradient(180deg,#16213a,#0f1627);color:var(--ink);border:1px solid var(--line)}
+    .danger{background:linear-gradient(180deg,#ff9a9a,#ff6b6b);box-shadow:0 6px 18px rgba(255,107,107,.35)}
+
+    .item{padding:12px;border:1px dashed var(--line);border-radius:16px;background:rgba(16,22,38,.35)}
+
+    /* 小花动画 */
+    .flower-wrap{position:fixed;right:10px;bottom:10px;pointer-events:none;z-index:0}
+    .flower{position:absolute;width:24px;height:24px;background:radial-gradient(circle at center,#88b8ff 0%,#4d6fff 70%,transparent 100%);border-radius:50%;animation:float 6s ease-in-out infinite}
+    .flower::before,.flower::after{content:'';position:absolute;width:16px;height:16px;background:radial-gradient(circle at center,#a7c6ff 0%,#5b82ff 80%,transparent 100%);border-radius:50%}
+    .flower::before{top:-12px;left:4px}
+    .flower::after{left:-12px;top:4px}
+    @keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-10px) rotate(10deg)}}
+    .flower:nth-child(2){right:30px;bottom:30px;animation-delay:2s;opacity:.7}
+    .flower:nth-child(3){right:60px;bottom:20px;animation-delay:4s;opacity:.5}
+
+    .stars{position:absolute; inset:0; pointer-events:none; background-image:radial-gradient(#ffffff66 1px, transparent 1px);
+           background-size:32px 32px; opacity:.12}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>给云的晚安盲盒 (❤️) <span class="muted">· Goodnight Box (≥≤)</span></h1>
+    <div class="sub">刷新规则：<b>台湾（Asia/Taipei）</b>时区，<b>每日中午 12:00</b> 自动清零限额。</div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card">
+        <div class="flex between">
+          <div class="title">动作</div>
+          <div class="muted">本周期剩余：<span id="leftCount">3</span> / 3 · <span id="loadNote">正在加载卡组…</span></div>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button id="drawBtn">✨ 抽一张</button>
+          <button id="peekBtn">👀 偷看一张（不计入次数）</button>
+          <button id="historyBtn">📜 查看已抽卡</button>
+          <button id="resetTodayBtn">🔁 仅重置本周期</button>
+          <button id="resetAllBtn">🗑️ 全部重置</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">统计</div>
+        <div class="kpi">
+          <div class="card"><div class="muted">卡片总数</div><div class="big" id="kAll">0</div></div>
+          <div class="card"><div class="muted">已抽（唯一）</div><div class="big" id="kUnique">0</div></div>
+          <div class="card"><div class="muted">本轮剩余</div><div class="big" id="kRemain">0</div></div>
+          <div class="card"><div class="muted">连续天数</div><div class="big" id="kStreak">0</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top:var(--gap)" class="card">
+      <div class="title">展示区</div>
+      <div id="display" style="margin-top:12px" class="item">还没有卡片～ 点“抽一张”试试</div>
+    </section>
+
+    <section id="history" style="display:none;margin-top:var(--gap)" class="card">
+      <div class="title">已抽卡（只展示抽到过的）</div>
+      <div id="historyList" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-top:12px"></div>
+    </section>
+  </main>
+
+  <!-- 星点层 -->
+  <div class="stars"></div>
+
+  <!-- 小花 -->
+  <div class="flower-wrap">
+    <div class="flower"></div>
+    <div class="flower"></div>
+    <div class="flower"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  // 配置
+  const CONFIG_URL = 'https://sunnnnnnnnnnny.github.io/goodnight_box/cards.json';
+  const STORAGE_KEY = 'gnb_v2_state';
+  const MAX_PER_CYCLE = 3;
+  const TZ = 'Asia/Taipei';
+
+  // 小工具
+  function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function nowInTZ(){const fmt=new Intl.DateTimeFormat('zh-CN',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hour12:false});
+    const p=fmt.formatToParts(new Date()).reduce((o,q)=>{o[q.type]=q.value;return o},{});return {year:+p.year,month:+p.month,day:+p.day,hour:+p.hour};}
+  function cycleKey(){const n=nowInTZ();const base=new Date(Date.UTC(n.year,n.month-1,n.day,0,0,0));if(n.hour<12)base.setUTCDate(base.getUTCDate()-1);return fmtDate(new Date(base));}
+  function prevCycleKey(key){const [y,m,d]=key.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()-1);return fmtDate(dt);} 
+  const store={load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch{return null}},save(s){localStorage.setItem(STORAGE_KEY,JSON.stringify(s))}};
+
+  // 备用卡组（远程失败时使用）
+  const defaultDeck=[
+    {title:'测试卡·晚安1', text:'这是备用示例卡。若你看到它，说明远程 cards.json 未成功加载。'},
+    {title:'测试卡·抱抱', text:'给你一个远程加载失败时的抱抱～'},
+    {title:'测试卡·呼吸', text:'4-7-8 呼吸法：吸4，停7，呼8 x4'}
+  ];
+
+  // 状态
+  const initState={deck:[],drawn:{},perCycle:{},lastCycleKey:cycleKey(),streak:1};
+  let state=store.load()||{...initState};
+
+  function ensureCycleInitialized(){
+    if(typeof state.perCycle!=='object'||!state.perCycle) state.perCycle={};
+    const ck=cycleKey();
+    if(typeof state.perCycle[ck]!=='number') state.perCycle[ck]=0;
+    if(!state.lastCycleKey) state.lastCycleKey=ck;
+    if(typeof state.streak!=='number') state.streak=1;
+    store.save(state);
+    return ck;
+  }
+
+  function handleCycleChange(){
+    const ck=ensureCycleInitialized();
+    if(state.lastCycleKey!==ck){
+      state.streak=(state.lastCycleKey===prevCycleKey(ck))?(state.streak||1)+1:1;
+      state.lastCycleKey=ck;
+      if(typeof state.perCycle[ck]!=='number') state.perCycle[ck]=0;
+      store.save(state);
+    }
+  }
+  handleCycleChange();
+
+  // 视图引用
+  const leftCountEl=document.getElementById('leftCount'),kAll=document.getElementById('kAll'),kUnique=document.getElementById('kUnique'),kRemain=document.getElementById('kRemain'),kStreak=document.getElementById('kStreak'),display=document.getElementById('display'),historySec=document.getElementById('history'),historyList=document.getElementById('historyList');
+
+  function pool(){const drawnTitles=new Set(Object.keys(state.drawn||{}));return (state.deck||[]).filter(x=>!drawnTitles.has(x.title));}
+  function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1500);}  
+  function confetti(){console.log('✨ confetti!');}
+
+  function renderCounters(){
+    const ck=ensureCycleInitialized();
+    const used=state.perCycle[ck]||0;
+    const all=(state.deck||[]).length;
+    const remain=pool().length;
+    leftCountEl.textContent=Math.max(0,MAX_PER_CYCLE-used);
+    kAll.textContent=all; kUnique.textContent=Object.keys(state.drawn||{}).length; kRemain.textContent=remain; kStreak.textContent=state.streak||0;
+
+    const drawBtn=document.getElementById('drawBtn');
+    const note=document.getElementById('loadNote');
+    if(all===0){ drawBtn.disabled=true; if(note) note.textContent='未加载到卡组（将使用备用示例卡）'; }
+    else if(used>=MAX_PER_CYCLE || remain===0){ drawBtn.disabled=true; if(note) note.textContent=used>=MAX_PER_CYCLE?'今天次数用完啦～':'本轮已抽完'; }
+    else{ drawBtn.disabled=false; if(note) note.textContent='卡组已就绪'; }
+  }
+
+  function showCard(card,meta={consumed:false}){
+    display.innerHTML=`<div class="item"><div class="title">${card.title||''}</div><div style="margin-top:6px">${card.text||card.body||''}</div><div class="muted" style="margin-top:10px">${meta.consumed?'本次抽取记入次数':'仅预览，不计入次数'}</div></div>`;
+  }
+
+  function drawOne(){
+    handleCycleChange();
+    const ck=ensureCycleInitialized();
+    const used=state.perCycle[ck]||0;
+    if(used>=MAX_PER_CYCLE){ toast('本周期已达 3 次上限（台北时区中午12点刷新）'); return; }
+    const p=pool();
+    if(p.length===0){ toast('本轮已抽完～'); return; }
+    const item=p[Math.floor(Math.random()*p.length)];
+    state.drawn[item.title]=(state.drawn[item.title]||0)+1;
+    state.perCycle[ck]=used+1;
+    store.save(state);
+    showCard(item,{consumed:true});
+    confetti();
+    renderCounters();
+  }
+
+  function peekOne(){
+    const p=pool();
+    if(p.length===0){ toast('没有可预览的卡了'); return; }
+    const item=p[Math.floor(Math.random()*p.length)];
+    showCard(item,{consumed:false});
+  }
+
+  function renderHistory(){
+    historyList.innerHTML='';
+    const titles=Object.keys(state.drawn||{});
+    if(titles.length===0){ historyList.innerHTML='<div class="muted">还没有抽到过任何卡～</div>'; return; }
+    const map=new Map((state.deck||[]).map(x=>[x.title,x]));
+    titles.forEach(t=>{
+      const card=map.get(t)||{title:t,text:''};
+      const times=state.drawn[t]||1;
+      const el=document.createElement('div');
+      el.className='item';
+      el.innerHTML=`<div class="title">${card.title}</div><div style='margin-top:6px'>${card.text||card.body||''}</div><div class='muted' style='margin-top:10px'>抽到次数：${times}</div>`;
+      historyList.appendChild(el);
+    });
+  }
+
+  function resetCycle(){
+    const ck=ensureCycleInitialized();
+    state.perCycle[ck]=0;
+    store.save(state);
+    renderCounters();
+    toast('已重置本周期次数（台北时区中午12点为界）');
+  }
+
+  function resetAll(){
+    if(!confirm('确认清空【抽取历史、次数、连击】？卡组将保留。')) return;
+    // ✅ 修复：不再清空 deck，只清空使用痕迹
+    const ck=ensureCycleInitialized();
+    state.drawn={};
+    state.perCycle={};
+    state.perCycle[ck]=0;
+    state.lastCycleKey=ck;
+    state.streak=1;
+    store.save(state);
+    renderCounters();
+    display.textContent='已全部重置～';
+  }
+
+  // 事件绑定
+  document.getElementById('drawBtn').addEventListener('click',drawOne);
+  document.getElementById('peekBtn').addEventListener('click',peekOne);
+  document.getElementById('historyBtn').addEventListener('click',()=>{const vis=historySec.style.display!=='none';historySec.style.display=vis?'none':'block';if(!vis)renderHistory();});
+  document.getElementById('resetTodayBtn').addEventListener('click',resetCycle);
+  document.getElementById('resetAllBtn').addEventListener('click',resetAll);
+
+  // 首次渲染 + 加载卡组
+  ensureCycleInitialized();
+  renderCounters();
+
+  async function loadDeck(){
+    const note=document.getElementById('loadNote');
+    try{
+      note && (note.textContent='正在从 GitHub 加载…');
+      const res=await fetch(CONFIG_URL+`?v=${Date.now()}`);
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data=await res.json();
+      if(!data.deck || !Array.isArray(data.deck) || data.deck.length===0) throw new Error('cards.json 中没有 deck 或为空');
+      state.deck=data.deck; store.save(state); renderCounters();
+      note && (note.textContent='卡组已就绪');
+    }catch(e){
+      console.error('[GoodnightBox] 加载远程卡组失败：', e);
+      toast('卡组加载失败，已启用备用示例卡');
+      if(!state.deck || state.deck.length===0){ state.deck=defaultDeck; store.save(state); }
+      renderCounters();
+      const note=document.getElementById('loadNote');
+      note && (note.textContent='使用备用示例卡');
+    }
+  }
+  loadDeck();
+
+  // 美化按钮
+  (function beautifyButtons(){
+    document.getElementById('peekBtn').classList.add('ghost');
+    document.getElementById('historyBtn').classList.add('outline');
+    document.getElementById('resetTodayBtn').classList.add('outline');
+    document.getElementById('resetAllBtn').classList.add('danger');
+  })();
+
+  // 自测：resetAll 不应清空 deck
+  ;(function selfTest(){
+    try{
+      const before=(state.deck||[]).length;
+      const bak=JSON.parse(JSON.stringify(state));
+      // 模拟有一些数据
+      state.drawn={'X':1}; const ck=ensureCycleInitialized(); state.perCycle[ck]=2; store.save(state);
+      // 调用重置
+      resetAll.call({confirm:()=>true}); // 直接调用函数体
+      const after=(state.deck||[]).length;
+      if(before!==after) throw new Error('deck length changed after resetAll');
+      // 回滚
+      state=bak; store.save(state); renderCounters();
+      console.log('%cPASS','color:#59d390','resetAll keeps deck');
+    }catch(e){ console.error('%cFAIL','color:#ff6b6b','resetAll keeps deck',e); }
+  })();
+  </script>
+</body>
+</html>
