@@ -287,7 +287,6 @@
       const times=state.drawn[t]||1;
       const el=document.createElement('div');
       el.className='item';
-      // 🔧 这里也加了 white-space:pre-wrap
       el.innerHTML = `
         <div class="title">${card.title}</div>
         <div style="margin-top:6px; white-space:pre-wrap;">
@@ -332,7 +331,7 @@
   document.getElementById('resetTodayBtn').addEventListener('click',resetCycle);
   document.getElementById('resetAllBtn').addEventListener('click',resetAll);
 
-  // 首次渲染 + 加载卡组
+  // 首次渲染加载卡组
   ensureCycleInitialized();
   renderCounters();
 
@@ -363,7 +362,7 @@
   }
   loadDeck();
 
-  // 美化按钮
+  // 按钮
   (function beautifyButtons(){
     document.getElementById('peekBtn').classList.add('ghost');
     document.getElementById('historyBtn').classList.add('outline');
@@ -371,7 +370,7 @@
     document.getElementById('resetAllBtn').classList.add('danger');
   })();
 
-  // 自测：resetAll 不应清空 deck
+  // 自测
   ;(function selfTest(){
     try{
       const before=(state.deck||[]).length;
