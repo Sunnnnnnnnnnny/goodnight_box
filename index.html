@@ -227,18 +227,21 @@
     }
   }
 
-  // 🔧 这里加了 white-space:pre-wrap
-  function showCard(card,meta={consumed:false}){
-    display.innerHTML = `
-      <div class="item">
-        <div class="title">${card.title||''}</div>
-        <div style="margin-top:6px; white-space:pre-wrap;">${card.text||card.body||''}</div>
-        <div class="muted" style="margin-top:10px">
-          ${meta.consumed?'本次抽取记入次数':'仅预览，不计入次数'}
-        </div>
-      </div>`;
-  }
 
+  function showCard(card, meta = { consumed: false }) {
+  display.innerHTML = `
+    <div class="item" style="white-space:pre-wrap;">
+      <div class="muted" style="font-size:12px; margin-bottom:4px;">
+        ${card.tag ? '· ' + card.tag + ' ·' : ''}
+      </div>
+      <div class="title">${card.title || ''}</div>
+      <div style="margin-top:6px; white-space:pre-wrap;">${card.text || card.body || ''}</div>
+      <div class="muted" style="margin-top:10px">
+        ${meta.consumed ? '本次抽取记入次数' : '仅预览，不计入次数'}
+      </div>
+    </div>
+  `;
+}
   function drawOne(){
     handleCycleChange();
     const ck=ensureCycleInitialized();
