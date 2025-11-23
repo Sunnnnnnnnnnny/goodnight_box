@@ -107,7 +107,9 @@
 
     <section style="margin-top:var(--gap)" class="card">
       <div class="title">展示区</div>
-      <div id="display" style="margin-top:12px" class="item">还没有卡片～ 点“抽一张”试试</div>
+      <div id="display" style="margin-top:12px; white-space:pre-wrap;" class="item">
+        还没有卡片～ 点“抽一张”试试
+      </div>
     </section>
 
     <section id="history" style="display:none;margin-top:var(--gap)" class="card">
@@ -145,7 +147,7 @@
 
   // 备用卡组（远程失败时使用）
   const defaultDeck=[
-    {title:'测试卡·晚安1', text:'这是备用示例卡。若你看到它，说明远程 cards.json 未成功加载。'},
+    {title:'测试卡·晚安1', text:'这是备用示例卡。若你看到它，说明未成功加载。'},
     {title:'测试卡·抱抱', text:'给你一个远程加载失败时的抱抱～'},
     {title:'测试卡·呼吸', text:'4-7-8 呼吸法：吸4，停7，呼8 x4'}
   ];
@@ -176,10 +178,27 @@
   handleCycleChange();
 
   // 视图引用
-  const leftCountEl=document.getElementById('leftCount'),kAll=document.getElementById('kAll'),kUnique=document.getElementById('kUnique'),kRemain=document.getElementById('kRemain'),kStreak=document.getElementById('kStreak'),display=document.getElementById('display'),historySec=document.getElementById('history'),historyList=document.getElementById('historyList');
+  const leftCountEl=document.getElementById('leftCount'),
+        kAll=document.getElementById('kAll'),
+        kUnique=document.getElementById('kUnique'),
+        kRemain=document.getElementById('kRemain'),
+        kStreak=document.getElementById('kStreak'),
+        display=document.getElementById('display'),
+        historySec=document.getElementById('history'),
+        historyList=document.getElementById('historyList');
 
-  function pool(){const drawnTitles=new Set(Object.keys(state.drawn||{}));return (state.deck||[]).filter(x=>!drawnTitles.has(x.title));}
-  function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1500);}  
+  function pool(){
+    const drawnTitles=new Set(Object.keys(state.drawn||{}));
+    return (state.deck||[]).filter(x=>!drawnTitles.has(x.title));
+  }
+
+  function toast(msg){
+    const el=document.getElementById('toast');
+    el.textContent=msg;
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),1500);
+  }  
+
   function confetti(){console.log('✨ confetti!');}
 
   function renderCounters(){
@@ -187,27 +206,52 @@
     const used=state.perCycle[ck]||0;
     const all=(state.deck||[]).length;
     const remain=pool().length;
+
     leftCountEl.textContent=Math.max(0,MAX_PER_CYCLE-used);
-    kAll.textContent=all; kUnique.textContent=Object.keys(state.drawn||{}).length; kRemain.textContent=remain; kStreak.textContent=state.streak||0;
+    kAll.textContent=all;
+    kUnique.textContent=Object.keys(state.drawn||{}).length;
+    kRemain.textContent=remain;
+    kStreak.textContent=state.streak||0;
 
     const drawBtn=document.getElementById('drawBtn');
     const note=document.getElementById('loadNote');
-    if(all===0){ drawBtn.disabled=true; if(note) note.textContent='未加载到卡组（将使用备用示例卡）'; }
-    else if(used>=MAX_PER_CYCLE || remain===0){ drawBtn.disabled=true; if(note) note.textContent=used>=MAX_PER_CYCLE?'今天次数用完啦～':'本轮已抽完'; }
-    else{ drawBtn.disabled=false; if(note) note.textContent='卡组已就绪'; }
+    if(all===0){
+      drawBtn.disabled=true;
+      if(note) note.textContent='未加载到卡组（将使用备用示例卡）';
+    }else if(used>=MAX_PER_CYCLE || remain===0){
+      drawBtn.disabled=true;
+      if(note) note.textContent=used>=MAX_PER_CYCLE?'今天次数用完啦～':'本轮已抽完';
+    }else{
+      drawBtn.disabled=false;
+      if(note) note.textContent='卡组已就绪';
+    }
   }
 
+  // 🔧 这里加了 white-space:pre-wrap
   function showCard(card,meta={consumed:false}){
-    display.innerHTML=`<div class="item"><div class="title">${card.title||''}</div><div style="margin-top:6px">${card.text||card.body||''}</div><div class="muted" style="margin-top:10px">${meta.consumed?'本次抽取记入次数':'仅预览，不计入次数'}</div></div>`;
+    display.innerHTML = `
+      <div class="item">
+        <div class="title">${card.title||''}</div>
+        <div style="margin-top:6px; white-space:pre-wrap;">${card.text||card.body||''}</div>
+        <div class="muted" style="margin-top:10px">
+          ${meta.consumed?'本次抽取记入次数':'仅预览，不计入次数'}
+        </div>
+      </div>`;
   }
 
   function drawOne(){
     handleCycleChange();
     const ck=ensureCycleInitialized();
     const used=state.perCycle[ck]||0;
-    if(used>=MAX_PER_CYCLE){ toast('本周期已达 3 次上限（台北时区中午12点刷新）'); return; }
+    if(used>=MAX_PER_CYCLE){
+      toast('本周期已达 3 次上限（台北时区中午12点刷新）');
+      return;
+    }
     const p=pool();
-    if(p.length===0){ toast('本轮已抽完～'); return; }
+    if(p.length===0){
+      toast('本轮已抽完～');
+      return;
+    }
     const item=p[Math.floor(Math.random()*p.length)];
     state.drawn[item.title]=(state.drawn[item.title]||0)+1;
     state.perCycle[ck]=used+1;
@@ -219,7 +263,10 @@
 
   function peekOne(){
     const p=pool();
-    if(p.length===0){ toast('没有可预览的卡了'); return; }
+    if(p.length===0){
+      toast('没有可预览的卡了');
+      return;
+    }
     const item=p[Math.floor(Math.random()*p.length)];
     showCard(item,{consumed:false});
   }
@@ -227,14 +274,25 @@
   function renderHistory(){
     historyList.innerHTML='';
     const titles=Object.keys(state.drawn||{});
-    if(titles.length===0){ historyList.innerHTML='<div class="muted">还没有抽到过任何卡～</div>'; return; }
+    if(titles.length===0){
+      historyList.innerHTML='<div class="muted">还没有抽到过任何卡～</div>';
+      return;
+    }
     const map=new Map((state.deck||[]).map(x=>[x.title,x]));
     titles.forEach(t=>{
       const card=map.get(t)||{title:t,text:''};
       const times=state.drawn[t]||1;
       const el=document.createElement('div');
       el.className='item';
-      el.innerHTML=`<div class="title">${card.title}</div><div style='margin-top:6px'>${card.text||card.body||''}</div><div class='muted' style='margin-top:10px'>抽到次数：${times}</div>`;
+      // 🔧 这里也加了 white-space:pre-wrap
+      el.innerHTML = `
+        <div class="title">${card.title}</div>
+        <div style="margin-top:6px; white-space:pre-wrap;">
+          ${card.text||card.body||''}
+        </div>
+        <div class="muted" style="margin-top:10px">
+          抽到次数：${times}
+        </div>`;
       historyList.appendChild(el);
     });
   }
@@ -249,7 +307,6 @@
 
   function resetAll(){
     if(!confirm('确认清空【抽取历史、次数、连击】？卡组将保留。')) return;
-    // ✅ 修复：不再清空 deck，只清空使用痕迹
     const ck=ensureCycleInitialized();
     state.drawn={};
     state.perCycle={};
@@ -264,7 +321,11 @@
   // 事件绑定
   document.getElementById('drawBtn').addEventListener('click',drawOne);
   document.getElementById('peekBtn').addEventListener('click',peekOne);
-  document.getElementById('historyBtn').addEventListener('click',()=>{const vis=historySec.style.display!=='none';historySec.style.display=vis?'none':'block';if(!vis)renderHistory();});
+  document.getElementById('historyBtn').addEventListener('click',()=>{
+    const vis=historySec.style.display!=='none';
+    historySec.style.display=vis?'none':'block';
+    if(!vis) renderHistory();
+  });
   document.getElementById('resetTodayBtn').addEventListener('click',resetCycle);
   document.getElementById('resetAllBtn').addEventListener('click',resetAll);
 
@@ -279,13 +340,19 @@
       const res=await fetch(CONFIG_URL+`?v=${Date.now()}`);
       if(!res.ok) throw new Error(`HTTP ${res.status}`);
       const data=await res.json();
-      if(!data.deck || !Array.isArray(data.deck) || data.deck.length===0) throw new Error('cards.json 中没有 deck 或为空');
-      state.deck=data.deck; store.save(state); renderCounters();
+      if(!data.deck || !Array.isArray(data.deck) || data.deck.length===0)
+        throw new Error('cards.json 中没有 deck 或为空');
+      state.deck=data.deck;
+      store.save(state);
+      renderCounters();
       note && (note.textContent='卡组已就绪');
     }catch(e){
       console.error('[GoodnightBox] 加载远程卡组失败：', e);
       toast('卡组加载失败，已启用备用示例卡');
-      if(!state.deck || state.deck.length===0){ state.deck=defaultDeck; store.save(state); }
+      if(!state.deck || state.deck.length===0){
+        state.deck=defaultDeck;
+        store.save(state);
+      }
       renderCounters();
       const note=document.getElementById('loadNote');
       note && (note.textContent='使用备用示例卡');
@@ -306,16 +373,20 @@
     try{
       const before=(state.deck||[]).length;
       const bak=JSON.parse(JSON.stringify(state));
-      // 模拟有一些数据
-      state.drawn={'X':1}; const ck=ensureCycleInitialized(); state.perCycle[ck]=2; store.save(state);
-      // 调用重置
-      resetAll.call({confirm:()=>true}); // 直接调用函数体
+      state.drawn={'X':1};
+      const ck=ensureCycleInitialized();
+      state.perCycle[ck]=2;
+      store.save(state);
+      resetAll.call({confirm:()=>true});
       const after=(state.deck||[]).length;
       if(before!==after) throw new Error('deck length changed after resetAll');
-      // 回滚
-      state=bak; store.save(state); renderCounters();
+      state=bak;
+      store.save(state);
+      renderCounters();
       console.log('%cPASS','color:#59d390','resetAll keeps deck');
-    }catch(e){ console.error('%cFAIL','color:#ff6b6b','resetAll keeps deck',e); }
+    }catch(e){
+      console.error('%cFAIL','color:#ff6b6b','resetAll keeps deck',e);
+    }
   })();
   </script>
 </body>
